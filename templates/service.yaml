@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "agenticka-platforma.fullname" . }}
+  labels:
+    {{- include "agenticka-platforma.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "agenticka-platforma.selectorLabels" . | nindent 4 }}

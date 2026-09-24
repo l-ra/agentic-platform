@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agentická platforma — přehled pro manažery</title>
+  <style>
+    :root {
+      --bg: #f7f5f1;
+      --surface: #ffffff;
+      --ink: #1c2430;
+      --muted: #5a6572;
+      --line: #d8dde4;
+      --accent: #0d6e6e;
+      --accent-soft: #e4f2f1;
+      --warm: #b86b2a;
+      --warm-soft: #f8eee4;
+      --slate: #3d4f63;
+      --ok: #2a6b45;
+      --shadow: 0 12px 40px rgba(28, 36, 48, 0.08);
+      --radius: 14px;
+      --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --display: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #e8f0ee 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, #f3ebe3 0%, transparent 50%),
+        var(--bg);
+    }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      display: none;
+      flex: 1;
+      padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1.5rem, 4vw, 3.5rem) 5rem;
+      max-width: 1180px;
+      margin: 0 auto;
+      width: 100%;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .slide.active { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(1.7rem, 3.2vw, 2.35rem);
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--ink);
+      max-width: 22ch;
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      max-width: 58ch;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.5rem;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      font-size: 0.95rem;
+      font-weight: 650;
+      margin-bottom: 0.65rem;
+      color: var(--slate);
+    }
+
+    .panel p, .panel li {
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .panel ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .panel li::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 0.55rem;
+      vertical-align: middle;
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.45rem;
+    }
+
+    .pill-teal { background: var(--accent-soft); color: var(--accent); }
+    .pill-warm { background: var(--warm-soft); color: var(--warm); }
+    .pill-ok { background: #e6f2ea; color: var(--ok); }
+
+    .cap-title {
+      font-size: 1.05rem;
+      font-weight: 650;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+    }
+
+    .schema-wrap {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .schema-wrap svg { width: 100%; height: auto; max-height: 340px; }
+
+    .callout {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: var(--accent-soft);
+      border: 1px solid #c5ddd9;
+      border-radius: var(--radius);
+      padding: 0.9rem 1.1rem;
+    }
+
+    .callout strong { color: var(--ink); font-weight: 650; }
+    .callout p { color: var(--slate); font-size: 0.92rem; line-height: 1.45; }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.5rem;
+      background: rgba(247, 245, 241, 0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--line);
+    }
+
+    .dots { display: flex; gap: 0.45rem; align-items: center; }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #c5ccd6;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .dot.active { background: var(--accent); width: 22px; border-radius: 999px; }
+
+    .nav-btns { display: flex; gap: 0.5rem; }
+
+    button.ctrl {
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.95rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    button.ctrl:hover { border-color: var(--accent); color: var(--accent); }
+    button.ctrl:disabled { opacity: 0.4; cursor: default; }
+    button.ctrl.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    button.ctrl.primary:hover { filter: brightness(1.05); color: #fff; }
+
+    .slide-num {
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 4.5rem;
+    }
+
+    .benefit-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 1rem;
+      align-items: start;
+    }
+
+    .benefit-row + .benefit-row {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .signal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .signal {
+      display: grid;
+      grid-template-columns: 1.6rem 1fr;
+      gap: 0.55rem;
+      align-items: start;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .signal b { color: var(--ink); font-weight: 650; }
+
+    .num {
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      margin-top: 0.1rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      h1 { max-width: none; }
+      .slide { padding-bottom: 5.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" data-slide="0" aria-label="Co je agentická platforma">
+      <p class="eyebrow">01 · Základ</p>
+      <h1>Co je agentická platforma</h1>
+      <p class="lede">
+        Řízené prostředí, ve kterém organizace využívá AI bezpečně a opakovatelně —
+        od chatu přes digitální pracovníky až po podporu procesů, kterou umí sestavit i poučený uživatel.
+      </p>
+
+      <div class="grid-3">
+        <div class="panel">
+          <span class="pill pill-teal">Chat</span>
+          <div class="cap-title">Řízený přístup k AI</div>
+          <p>Odpovědi ze znalostí modelu nebo z vyhledávání — pod správou organizace, ne jako volný veřejný nástroj.</p>
+        </div>
+        <div class="panel">
+          <span class="pill pill-warm">Agent</span>
+          <div class="cap-title">Digitální pracovník</div>
+          <p>Pracuje v dané roli, používá nástroje (API, data, počítač) a samostatně řeší konkrétní úkol — typicky <em>nedeterministickou</em> část procesu.</p>
+        </div>
+        <div class="panel">
+          <span class="pill pill-ok">Podpora procesů</span>
+          <div class="cap-title">„Vibecoding“ / low-code AI</div>
+          <p>Umožní poučeným uživatelům navrhovat a nasazovat <em>deterministickou</em> IT podporu procesů — tam, kde je předvídatelnost nutná.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+          <circle cx="14" cy="14" r="13" fill="#0d6e6e"/>
+          <path d="M8 14.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p>
+          <strong>Princíp:</strong> efektivita vzniká standardizací.
+          Cíl je mít deterministické procesy všude, kde to jde —
+          a AI použít tam, kde svět zůstává rozmanitý (pravidlo 80/20).
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" data-slide="1" aria-label="Jak platforma funguje">
+      <p class="eyebrow">02 · Fungování</p>
+      <h1>Jak platforma drží AI pod kontrolou</h1>
+      <p class="lede">
+        Platforma není „jeden chatbot“. Je to provozní vrstva: přístup, nástroje, běh agenta, paměť a audit.
+      </p>
+
+      <div class="grid-2">
+        <div class="schema-wrap">
+          <svg viewBox="0 0 560 360" role="img" aria-label="Schéma cyklu standardizace a vrstev platformy">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#3d4f63"/>
+              </marker>
+            </defs>
+
+            <!-- Cycle title -->
+            <text x="20" y="28" font-family="Georgia, serif" font-size="15" fill="#1c2430">Cyklus zlepšování procesu</text>
+
+            <!-- Cycle boxes -->
+            <rect x="20" y="48" width="110" height="44" rx="8" fill="#e4f2f1" stroke="#0d6e6e"/>
+            <text x="75" y="68" text-anchor="middle" font-size="11" fill="#0d6e6e" font-weight="700">Pozoruj</text>
+            <text x="75" y="82" text-anchor="middle" font-size="10" fill="#5a6572">&amp; analyzuj</text>
+
+            <line x1="130" y1="70" x2="152" y2="70" stroke="#3d4f63" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <rect x="158" y="48" width="110" height="44" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="213" y="74" text-anchor="middle" font-size="12" fill="#1c2430" font-weight="600">Navrhni</text>
+
+            <line x1="268" y1="70" x2="290" y2="70" stroke="#3d4f63" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <rect x="296" y="48" width="110" height="44" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="351" y="74" text-anchor="middle" font-size="12" fill="#1c2430" font-weight="600">Implementuj</text>
+
+            <line x1="406" y1="70" x2="428" y2="70" stroke="#3d4f63" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <rect x="434" y="48" width="110" height="44" rx="8" fill="#f8eee4" stroke="#b86b2a"/>
+            <text x="489" y="74" text-anchor="middle" font-size="12" fill="#b86b2a" font-weight="700">Používej</text>
+
+            <!-- return arrow -->
+            <path d="M489 92 L489 118 L75 118 L75 92" fill="none" stroke="#9aa5b2" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+            <text x="282" y="112" text-anchor="middle" font-size="10" fill="#5a6572">opakuj → standardizuj</text>
+
+            <!-- Agent anatomy -->
+            <text x="20" y="158" font-family="Georgia, serif" font-size="15" fill="#1c2430">Z čeho se skládá agent</text>
+
+            <!-- Central agent -->
+            <rect x="200" y="180" width="160" height="70" rx="12" fill="#0d6e6e"/>
+            <text x="280" y="210" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">Agent</text>
+            <text x="280" y="228" text-anchor="middle" font-size="11" fill="#c8e6e4">digitální pracovník</text>
+
+            <!-- Surrounding parts -->
+            <rect x="20" y="175" width="130" height="36" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="85" y="197" text-anchor="middle" font-size="11" fill="#1c2430">Systémový prompt</text>
+            <line x1="150" y1="193" x2="200" y2="205" stroke="#c5ccd6" stroke-width="1.2"/>
+
+            <rect x="20" y="225" width="130" height="36" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="85" y="247" text-anchor="middle" font-size="11" fill="#1c2430">Model (LLM)</text>
+            <line x1="150" y1="243" x2="200" y2="225" stroke="#c5ccd6" stroke-width="1.2"/>
+
+            <rect x="410" y="175" width="130" height="36" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="475" y="197" text-anchor="middle" font-size="11" fill="#1c2430">Nástroje / MCP</text>
+            <line x1="410" y1="193" x2="360" y2="205" stroke="#c5ccd6" stroke-width="1.2"/>
+
+            <rect x="410" y="225" width="130" height="36" rx="8" fill="#fff" stroke="#d8dde4"/>
+            <text x="475" y="247" text-anchor="middle" font-size="11" fill="#1c2430">Paměť &amp; stav</text>
+            <line x1="410" y1="243" x2="360" y2="225" stroke="#c5ccd6" stroke-width="1.2"/>
+
+            <rect x="175" y="280" width="210" height="40" rx="8" fill="#e6f2ea" stroke="#2a6b45"/>
+            <text x="280" y="304" text-anchor="middle" font-size="12" fill="#2a6b45" font-weight="600">Audit · řízení přístupu · dlouhý běh</text>
+            <line x1="280" y1="250" x2="280" y2="280" stroke="#c5ccd6" stroke-width="1.2"/>
+
+            <text x="280" y="348" text-anchor="middle" font-size="11" fill="#5a6572">
+              Platforma = řízený chat + běh agentů + nástroje k datům a službám
+            </text>
+          </svg>
+        </div>
+
+        <div class="panel" style="display:flex; flex-direction:column; gap:0.85rem;">
+          <h2>Základní služby platformy</h2>
+          <ul>
+            <li>Zpřístupnit AI v organizaci <strong style="color:var(--ink)">řízeným způsobem</strong></li>
+            <li>Provozovat chat pod politikami a přístupovými právy</li>
+            <li>Spouštět agenty s napojením na interní i externí API (např. MCP)</li>
+            <li>Umožnit tvorbu deterministické podpory procesů poučeným uživatelům</li>
+          </ul>
+          <div style="margin-top:auto; padding-top:0.75rem; border-top:1px solid var(--line);">
+            <p style="font-size:0.88rem; color:var(--muted); line-height:1.45;">
+              <strong style="color:var(--ink)">Deterministické</strong> = opakovatelné, předvídatelné kroky.<br/>
+              <strong style="color:var(--ink)">Nedeterministické</strong> = úsudky, výjimky, rozmanité vstupy — prostor pro agenta.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" data-slide="2" aria-label="Přínosy a signály u zákazníka">
+      <p class="eyebrow">03 · Přínosy a příležitost</p>
+      <h1>Proč to organizace chce — a kde to poznáte</h1>
+      <p class="lede">
+        Pro manažery: po seznámení umět u zákazníka rozpoznat prostor na dodávku agentické platformy.
+      </p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h2>Přínosy pro organizaci</h2>
+          <div class="benefit-row">
+            <div class="icon-box">
+              <svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 9h12M9 3v12" stroke="#0d6e6e" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <strong style="color:var(--ink); font-size:0.95rem;">Standardizace místo chaosu</strong>
+              <p>AI se nestává stínovou IT — procesy se pozorují, navrhují a opakují v řízeném cyklu.</p>
+            </div>
+          </div>
+          <div class="benefit-row">
+            <div class="icon-box" style="background:var(--warm-soft)">
+              <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="6" fill="none" stroke="#b86b2a" stroke-width="2"/><path d="M9 6v3.5L11.5 11" stroke="#b86b2a" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <strong style="color:var(--ink); font-size:0.95rem;">Kapacita týmů na 80 % výjimek</strong>
+              <p>Lidé a agenti řeší rozmanitou část; rutina jde do deterministické podpory.</p>
+            </div>
+          </div>
+          <div class="benefit-row">
+            <div class="icon-box" style="background:#e6f2ea">
+              <svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 12l4-4 3 3 5-6" fill="none" stroke="#2a6b45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <strong style="color:var(--ink); font-size:0.95rem;">Kontrola, audit, přístup</strong>
+              <p>Kdo co spouští, k jakým datům a službám — transparentní provoz digitálních pracovníků.</p>
+            </div>
+          </div>
+          <div class="benefit-row">
+            <div class="icon-box">
+              <svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="4" width="12" height="10" rx="2" fill="none" stroke="#0d6e6e" stroke-width="1.8"/><path d="M6 8h6M6 11h4" stroke="#0d6e6e" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <strong style="color:var(--ink); font-size:0.95rem;">Rychlejší podpora procesů</strong>
+              <p>Byznys uživatelé mohou sestavit IT podporu bez fronty na vývoj — v mantinelech platformy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="background:linear-gradient(165deg, #fff 60%, #e4f2f1 100%);">
+          <h2>Signály u zákazníka (prodejní radar)</h2>
+          <div class="signal-list" style="margin-top:0.35rem;">
+            <div class="signal">
+              <span class="num">1</span>
+              <div><b>Mnoho výjimek v procesu</b> — „každý případ je trochu jiný“, excel a e-maily jako lepidlo.</div>
+            </div>
+            <div class="signal">
+              <span class="num">2</span>
+              <div><b>AI už se používá neřízeně</b> — ChatGPT „na boku“, bez auditu a napojení na interní data.</div>
+            </div>
+            <div class="signal">
+              <span class="num">3</span>
+              <div><b>Fronta na IT / automatizaci</b> — byznys chce rychle podporu procesu, vývoj nestíhá.</div>
+            </div>
+            <div class="signal">
+              <span class="num">4</span>
+              <div><b>Nástroje a data jsou izolované</b> — chybí bezpečné API napojení, které by agent mohl použít.</div>
+            </div>
+            <div class="signal">
+              <span class="num">5</span>
+              <div><b>Potřeba kontroly</b> — compliance, role, logování: „ano AI, ale pod naší správou“.</div>
+            </div>
+          </div>
+
+          <div class="schema-wrap" style="margin-top:1rem; box-shadow:none; padding:0.5rem;">
+            <svg viewBox="0 0 420 78" role="img" aria-label="Od signálu k nabídce">
+              <rect x="8" y="18" width="100" height="42" rx="8" fill="#e4f2f1" stroke="#0d6e6e"/>
+              <text x="58" y="43" text-anchor="middle" font-size="11" fill="#0d6e6e" font-weight="700">Signál</text>
+              <path d="M112 39 H138" stroke="#3d4f63" stroke-width="1.5" marker-end="url(#arrow2)"/>
+              <defs>
+                <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 Z" fill="#3d4f63"/>
+                </marker>
+              </defs>
+              <rect x="142" y="18" width="120" height="42" rx="8" fill="#fff" stroke="#d8dde4"/>
+              <text x="202" y="43" text-anchor="middle" font-size="11" fill="#1c2430" font-weight="600">Chat / Agent / Proces</text>
+              <path d="M266 39 H292" stroke="#3d4f63" stroke-width="1.5" marker-end="url(#arrow2)"/>
+              <rect x="296" y="18" width="116" height="42" rx="8" fill="#f8eee4" stroke="#b86b2a"/>
+              <text x="354" y="43" text-anchor="middle" font-size="11" fill="#b86b2a" font-weight="700">Nabídka platformy</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="nav" aria-label="Navigace prezentace">
+    <span class="slide-num" id="slideNum">1 / 3</span>
+    <div class="dots" id="dots"></div>
+    <div class="nav-btns">
+      <button class="ctrl" id="prev" type="button">← Zpět</button>
+      <button class="ctrl primary" id="next" type="button">Další →</button>
+    </div>
+  </nav>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const dotsEl = document.getElementById("dots");
+      const prev = document.getElementById("prev");
+      const next = document.getElementById("next");
+      const slideNum = document.getElementById("slideNum");
+      let i = 0;
+
+      slides.forEach((_, idx) => {
+        const b = document.createElement("button");
+        b.className = "dot" + (idx === 0 ? " active" : "");
+        b.type = "button";
+        b.setAttribute("aria-label", "Slajd " + (idx + 1));
+        b.addEventListener("click", () => go(idx));
+        dotsEl.appendChild(b);
+      });
+
+      function go(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+        Array.from(dotsEl.children).forEach((d, idx) => d.classList.toggle("active", idx === i));
+        slideNum.textContent = (i + 1) + " / " + slides.length;
+        prev.disabled = i === 0;
+        next.disabled = i === slides.length - 1;
+        next.textContent = i === slides.length - 1 ? "Hotovo" : "Další →";
+      }
+
+      prev.addEventListener("click", () => go(i - 1));
+      next.addEventListener("click", () => {
+        if (i < slides.length - 1) go(i + 1);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+          e.preventDefault();
+          go(i + 1);
+        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+          e.preventDefault();
+          go(i - 1);
+        } else if (e.key === "Home") go(0);
+        else if (e.key === "End") go(slides.length - 1);
+      });
+
+      go(0);
+    })();
+  </script>
+</body>
+</html>

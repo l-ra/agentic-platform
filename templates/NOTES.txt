@@ -1,0 +1,8 @@
+Aplikace je dostupná na:
+
+  https://{{ .Values.ingress.host }}
+
+Kontrola stavu:
+
+  kubectl --kubeconfig /home/rasekl/.kube/config-oc \
+    --namespace {{ .Release.Namespace }} get ingress,service,pods
